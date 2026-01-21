@@ -1,6 +1,6 @@
 # ResQdrant Sentinel - Backend API
 
-Professional backend for the ResQdrant Sentinel emergency response system with AI-assisted classification and MongoDB storage.
+Professional backend for the ResQdrant Sentinel emergency response system with AI-powered semantic emergency classification.
 
 ## 🏗️ Architecture
 
@@ -11,18 +11,18 @@ Frontend (React)
     ↓
 Backend (Node.js + Express)
     ↓
-    ├─→ MongoDB Atlas (Data Storage)
-    └─→ OpenAI API (Optional - AI Classification)
+    ├─→ In-Memory Storage (Development)
+    └─→ Groq AI / LLaMA 3.3 (Emergency Classification)
 ```
 
 ## ✨ Features
 
-- ✅ **REST API** for emergency report management
-- ✅ **MongoDB Atlas Integration** (Free Tier)
-- ✅ **AI-Assisted Classification** (Optional - improves keyword detection)
-- ✅ **Rule-Based Severity System** (AI does NOT make safety decisions)
+- ✅ **REST API** for emergency classification and reporting
+- ✅ **In-Memory Storage** (no database required)
+- ✅ **AI-Powered Classification** via Groq's LLaMA 3.3 70B
+- ✅ **Semantic Understanding** (no keyword matching)
 - ✅ **CORS Enabled** for frontend communication
-- ✅ **Statistics Dashboard** endpoint
+- ✅ **Resource Mapping** based on emergency type
 
 ## 🚀 Quick Start
 
@@ -33,14 +33,12 @@ cd backend
 npm install
 ```
 
-### 2. Setup MongoDB Atlas (FREE TIER)
+### 2. Get Groq API Key (FREE)
 
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+1. Go to [Groq Console](https://console.groq.com)
 2. Create a free account
-3. Create a new cluster (M0 Free Tier - 512MB)
-4. Click "Connect" → "Connect your application"
-5. Copy the connection string
-6. Replace `<password>` with your password
+3. Generate an API key
+4. Copy the key (starts with `gsk_`)
 
 ### 3. Setup Environment Variables
 
@@ -49,24 +47,20 @@ npm install
 cp .env.example .env
 
 # Edit .env and add your credentials
-# Required:
-MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/resqdrant
-
-# Optional (for AI classification):
-OPENAI_API_KEY=sk-your-key-here
+# Edit .env and add your Groq API key
+GROQ_API_KEY=gsk_your_actual_groq_api_key_here
+PORT=5000
 ```
 
 ### 4. Start the Server
 
 ```bash
-# Development mode (auto-restart on changes)
-npm run dev
-
-# Production mode
-npm start
+node index.js
 ```
 
 Server will run on: `http://localhost:5000`
+
+✅ **That's it!** No database setup needed.
 
 ## 📡 API Endpoints
 
@@ -80,8 +74,30 @@ Response:
 {
   "status": "ok",
   "timestamp": "2026-01-21T...",
-  "database": "connected",
+  "storage": "in-memory",
+  "totalReports": 0,
   "aiEnabled": true
+}
+```
+
+### Classify Emergency (AI-Powered)
+```http
+POST /api/classify
+Content-Type: application/json
+
+{
+  "userDescription": "Fire in building"
+}
+```
+
+Response:
+```json
+{
+  "emergencyType": "fire",
+  "severity": "CRITICAL",
+  "explanation": "Flames in building pose immediate threat",
+  "firstAidSteps": ["Evacuate immediately", "Call 911", ...],
+  "nearbyResources": [...]
 }
 ```
 
@@ -93,42 +109,20 @@ Content-Type: application/json
 {
   "userDescription": "Fire in building, smoke everywhere",
   "detectedEmergencies": ["fire"],
-  "keywordDetectedEmergencies": ["fire"],
-  "severityLevel": 3,
-  "emergencyMode": "CRITICAL_EMERGENCY_MODE",
+  "severityLevel": "CRITICAL",
   "location": {
     "city": "Chennai",
     "latitude": 13.0827,
     "longitude": 80.2707
   },
   "imageUploaded": false
+  }
 }
 ```
 
-### AI-Enhanced Classification (Optional)
+### Get All Reports (In-Memory)
 ```http
-POST /api/classify
-Content-Type: application/json
-
-{
-  "userDescription": "Someone collapsed, not breathing, chest pain"
-}
-```
-
-Response:
-```json
-{
-  "success": true,
-  "aiDetected": ["medical"],
-  "confidence": "high",
-  "reasoning": "Medical emergency - cardiac event with breathing issues",
-  "aiEnabled": true
-}
-```
-
-### Get All Reports
-```http
-GET /api/reports?limit=50&status=pending
+GET /api/reports
 ```
 
 ### Get Statistics
@@ -141,48 +135,41 @@ Response:
 {
   "success": true,
   "stats": {
-    "total": 145,
-    "critical": 89,
-    "riskAccumulation": 56,
-    "last24Hours": 23,
-    "byType": [
-      { "_id": "fire", "count": 45 },
-      { "_id": "medical", "count": 38 }
-    ]
+    "total": 12,
+    "totalReports": 12,
+    "reportsByStatus": {...}
   }
 }
 ```
 
-## 🤖 AI Integration (Optional)
+## 🤖 AI Classification
 
-### Why AI?
-The keyword-based system misses cases like:
-- "earthquake in building" (word "earthquake" not in original keywords)
-- "someone collapsed" (synonym for "unconscious")
-- "chest pain" (cardiac emergency)
+### How It Works
+1. User describes emergency in natural language
+2. Groq AI (LLaMA 3.3 70B) analyzes the text semantically
+3. AI returns: emergency type, severity, explanation, first-aid steps
+4. No keyword matching needed
 
-### What AI Does
-- ✅ Understands synonyms and context
-- ✅ Detects multiple emergency types
-- ✅ Improves classification accuracy
+### Why Groq?
+- ⚡ **Blazing Fast**: 300+ tokens/second
+- 🆓 **Free Tier**: Generous limits for development
+- 🎯 **Accurate**: LLaMA 3.3 70B state-of-the-art model
+- 📊 **Structured Output**: Guaranteed JSON responses
 
-### What AI Does NOT Do
-- ❌ Decide severity levels (rule-based only)
-- ❌ Decide emergency modes (rule-based only)
-- ❌ Provide first-aid instructions (rule-based only)
-- ❌ Make final safety decisions
+### Examples
+```
+"Building shaking violently" → Earthquake, CRITICAL
+"Person collapsed and not breathing" → Medical, CRITICAL
+"Heavy smoke from kitchen" → Fire, CRITICAL
+"Flood water rising rapidly" → Flood, CRITICAL
+```
 
 ### Cost
-- Uses GPT-3.5-turbo: ~$0.002 per request
-- Demo with 1000 requests: ~$2
-- Can be disabled - keywords still work
+- Free tier: Generous limits for development & demos
+- Production: Pay-as-you-go pricing
+- Alternative: Can add database for persistent storage
 
-### Setup
-1. Get API key: https://platform.openai.com/api-keys
-2. Add to `.env`: `OPENAI_API_KEY=sk-...`
-3. Restart server
-
-## 🔒 Safety Design
+## 🔒 Architecture Decisions
 
 ### Rule-Based Decision System
 ```
@@ -215,28 +202,6 @@ CRITICAL or RISK_ACCUMULATION mode
    - "False positive better than false negative"
    - Always err on side of safety
 
-## 🗄️ Database Schema
-
-```javascript
-Report {
-  userDescription: String,
-  detectedEmergencies: [String],       // Final merged list
-  keywordDetectedEmergencies: [String], // From keyword matching
-  aiDetectedEmergencies: [String],     // From AI (if used)
-  severityLevel: Number (1-3),
-  emergencyMode: String,
-  location: {
-    city: String,
-    latitude: Number,
-    longitude: Number
-  },
-  imageUploaded: Boolean,
-  status: String (pending/reviewed/resolved),
-  aiConfidence: String,
-  timestamp: Date
-}
-```
-
 ## 🧪 Testing
 
 ### Test Health Check
@@ -244,96 +209,74 @@ Report {
 curl http://localhost:5000/api/health
 ```
 
-### Test Report Submission
-```bash
-curl -X POST http://localhost:5000/api/report \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userDescription": "Fire emergency",
-    "detectedEmergencies": ["fire"],
-    "severityLevel": 3,
-    "emergencyMode": "CRITICAL_EMERGENCY_MODE",
-    "location": {"city": "Chennai"}
-  }'
-```
-
-### Test AI Classification (if enabled)
+### Test Emergency Classification
 ```bash
 curl -X POST http://localhost:5000/api/classify \
   -H "Content-Type: application/json" \
-  -d '{"userDescription": "earthquake shaking building"}'
+  -d '{"description": "Building shaking violently, things falling"}'
 ```
 
-## 📊 MongoDB Atlas Setup Guide
+Expected response:
+```json
+{
+  "success": true,
+  "classification": {
+    "emergencyType": "earthquake",
+    "severity": "CRITICAL",
+    "explanation": "Severe seismic activity...",
+    "firstAidSteps": ["Drop, Cover, and Hold On", ...]
+  },
+  "nearbyResources": {
+    "hospitals": [...],
+    "fireStations": [...]
+  }
+}
+```
 
-### Step-by-Step
-
-1. **Create Account**
-   - Go to mongodb.com/cloud/atlas
-   - Sign up (free)
-
-2. **Create Cluster**
-   - Choose "Shared" (Free)
-   - Select provider (AWS recommended)
-   - Choose region closest to you
-   - Cluster Tier: M0 Sandbox (FREE)
-
-3. **Create Database User**
-   - Database Access → Add New Database User
-   - Username: resqdrant_user
-   - Password: (generate strong password)
-   - Built-in Role: Read and write to any database
-
-4. **Whitelist IP Address**
-   - Network Access → Add IP Address
-   - For development: Allow Access from Anywhere (0.0.0.0/0)
-   - For production: Whitelist specific IPs
-
-5. **Get Connection String**
-   - Clusters → Connect → Connect your application
-   - Driver: Node.js, Version: 4.1 or later
-   - Copy connection string
-   - Replace `<password>` with your password
-   - Replace `<dbname>` with `resqdrant`
+### Test Report Viewing
+```bash
+curl http://localhost:5000/api/reports
+```
 
 ## 🚀 Deployment
 
-### Heroku (Free Tier Available)
-```bash
-# Install Heroku CLI
-# heroku login
-# heroku create resqdrant-backend
-# heroku config:set MONGO_URI="your-connection-string"
-# heroku config:set OPENAI_API_KEY="your-key" (optional)
-# git push heroku main
-```
+### Render (Recommended - Free Tier)
+1. Connect GitHub repository
+2. Set environment variables:
+   - `GROQ_API_KEY`: Your Groq API key
+3. Deploy
 
-### Render (Free Tier)
+### Railway (Free Tier)
 1. Connect GitHub repo
-2. Set environment variables
+2. Add `GROQ_API_KEY` environment variable
 3. Deploy
 
 ### Railway (Free Tier)
 1. Import project
-2. Add environment variables
+2. Add `GROQ_API_KEY` environment variable
 3. Deploy
 
 ## 🐛 Troubleshooting
 
-### "MongoDB Connection Error"
-- Check MONGO_URI in .env
-- Verify database password
-- Check IP whitelist in MongoDB Atlas
+### "Groq API Error"
+- Check GROQ_API_KEY in .env
+- Verify API key is valid at https://console.groq.com
+- Check rate limits (free tier has generous limits)
 
-### "AI Classifier: Disabled"
-- This is normal if no OPENAI_API_KEY set
-- System works with keywords only
-- Add API key to enable AI
+### "Port already in use"
+- Another process is using port 5000
+- Change PORT in .env to 5001
+- Or kill the process: `npx kill-port 5000`
 
 ### CORS Errors
 - Backend must run before frontend
 - Check backend is on http://localhost:5000
 - Frontend should fetch from http://localhost:5000/api/...
+
+### "Module not found"
+- Run `npm install` in backend folder
+- Check package.json dependencies
+- Try deleting node_modules and reinstalling
 
 ## 📝 License
 

@@ -11,6 +11,9 @@ const ResQdrant = () => {
   const [showPhoneDialog, setShowPhoneDialog] = useState(false);
   const [alertSent, setAlertSent] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [communityAlerts, setCommunityAlerts] = useState([]);
+  const [newAlert, setNewAlert] = useState('');
+  const [showAlertForm, setShowAlertForm] = useState(false);
   
   const fileInputRef = useRef(null);
 
@@ -26,6 +29,85 @@ const ResQdrant = () => {
     landslide: { icon: '⛰️', color: '#78716C' },
     gas: { icon: '💨', color: '#F59E0B' },
   };
+
+  // Safety tips for each emergency type
+  const safetyTips = {
+    fire: [
+      "Stay low to the ground to avoid smoke inhalation",
+      "Feel doors before opening - if hot, use alternate route",
+      "Never use elevators during a fire",
+      "Stop, drop, and roll if clothes catch fire",
+      "Call 101 immediately after ensuring personal safety"
+    ],
+    flood: [
+      "Move to higher ground immediately",
+      "Avoid walking or driving through flood water",
+      "Stay away from power lines and electrical wires",
+      "Don't drink flood water - it may be contaminated",
+      "Listen to local emergency broadcasts for updates"
+    ],
+    earthquake: [
+      "Drop, Cover, and Hold On during shaking",
+      "Stay away from windows, mirrors, and heavy objects",
+      "If outdoors, move to open space away from buildings",
+      "Don't use elevators - take stairs if evacuation needed",
+      "Check for gas leaks after shaking stops"
+    ],
+    medical: [
+      "Call 108 immediately for medical emergencies",
+      "Don't move injured person unless in immediate danger",
+      "Apply pressure to stop severe bleeding",
+      "For choking: perform Heimlich maneuver",
+      "Stay with the person until help arrives"
+    ],
+    bleeding: [
+      "Apply direct pressure with clean cloth",
+      "Elevate the injured area above heart level",
+      "Don't remove embedded objects",
+      "Use tourniquet only as last resort",
+      "Call 108 if bleeding doesn't stop in 10 minutes"
+    ],
+    electric: [
+      "Don't touch the person if still in contact with electricity",
+      "Turn off power source if safe to do so",
+      "Call 100 and report electrical emergency",
+      "Use dry wooden object to separate person from source",
+      "Check for breathing and perform CPR if needed"
+    ],
+    storm: [
+      "Stay indoors away from windows",
+      "Unplug electrical devices",
+      "Avoid using landline phones",
+      "Stay away from tall trees and metal objects",
+      "If outdoors, seek shelter in sturdy building"
+    ],
+    landslide: [
+      "Evacuate immediately if rumbling sounds heard",
+      "Move perpendicular to the landslide path",
+      "Stay alert for flooding - often follows landslides",
+      "Don't return home until authorities declare safe",
+      "Watch for fallen power lines and damaged roads"
+    ],
+    gas: [
+      "Don't use any electrical switches or flames",
+      "Open all windows and doors immediately",
+      "Evacuate the building quickly",
+      "Call gas emergency hotline from outside",
+      "Don't re-enter until cleared by authorities"
+    ]
+  };
+
+  // Extended emergency hotlines
+  const emergencyHotlines = [
+    { name: 'Emergency Services', number: '108', icon: '🚨', color: 'red', description: 'Ambulance & Medical' },
+    { name: 'Police', number: '100', icon: '👮', color: 'blue', description: 'Law Enforcement' },
+    { name: 'Fire Brigade', number: '101', icon: '🚒', color: 'orange', description: 'Fire & Rescue' },
+    { name: 'Disaster Management', number: '1078', icon: '🏢', color: 'purple', description: 'NDMA Helpline' },
+    { name: 'Women Helpline', number: '1091', icon: '👩', color: 'pink', description: '24/7 Support' },
+    { name: 'Child Helpline', number: '1098', icon: '👶', color: 'cyan', description: 'Child Protection' },
+    { name: 'Senior Citizens', number: '1091', icon: '👴', color: 'indigo', description: 'Elder Support' },
+    { name: 'Earthquake Alert', number: '1092', icon: '🌍', color: 'gray', description: 'Seismic Info' },
+  ];
 
   const getSeverityColor = (severity) => {
     switch(severity?.toUpperCase()) {
@@ -67,6 +149,36 @@ const ResQdrant = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePostAlert = () => {
+    if (newAlert.trim()) {
+      const alert = {
+        id: Date.now(),
+        message: newAlert,
+        location: userLocation ? `${userLocation.lat.toFixed(2)}, ${userLocation.lng.toFixed(2)}` : 'Unknown',
+        city: 'Chennai, Tamil Nadu',
+        timestamp: new Date().toLocaleString(),
+        type: detectedEmergency?.type || 'general'
+      };
+      setCommunityAlerts(prev => [alert, ...prev]);
+      setNewAlert('');
+      setShowAlertForm(false);
+    }
+  };
+
+  const getHotlineColor = (color) => {
+    const colors = {
+      red: 'from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-red-500/30',
+      blue: 'from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-blue-500/30',
+      orange: 'from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 shadow-orange-500/30',
+      purple: 'from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-purple-500/30',
+      pink: 'from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 shadow-pink-500/30',
+      cyan: 'from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 shadow-cyan-500/30',
+      indigo: 'from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 shadow-indigo-500/30',
+      gray: 'from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 shadow-gray-500/30',
+    };
+    return colors[color] || colors.gray;
   };
 
   const detectEmergencies = (text, hasImage) => {
@@ -505,6 +617,145 @@ const ResQdrant = () => {
           </div>
         )}
 
+        {/* Safety Tips Section */}
+        {detectedEmergency && safetyTips[detectedEmergency.type] && (
+          <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-500 animate-fade-in-up ${
+            isDarkMode 
+              ? 'bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50' 
+              : 'bg-white border border-gray-200 shadow-xl'
+          }`}>
+            <h2 className={`text-2xl font-semibold mb-6 flex items-center gap-3 ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              <span className="text-2xl">💡</span>
+              Safety Tips - {detectedEmergency.type.charAt(0).toUpperCase() + detectedEmergency.type.slice(1)}
+            </h2>
+            <div className="space-y-3">
+              {safetyTips[detectedEmergency.type].map((tip, idx) => (
+                <div 
+                  key={idx}
+                  className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-300 hover:translate-x-1 ${
+                    isDarkMode 
+                      ? 'bg-black/30 border border-white/5 hover:bg-black/50 hover:border-white/10' 
+                      : 'bg-green-50 border border-green-200 hover:border-green-300 hover:shadow-md'
+                  }`}
+                >
+                  <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    isDarkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-500 text-white'
+                  }`}>
+                    {idx + 1}
+                  </div>
+                  <p className={`flex-1 leading-relaxed ${
+                    isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                  }`}>
+                    {tip}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Community Alerts Section */}
+        <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-500 ${
+          isDarkMode 
+            ? 'bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50' 
+            : 'bg-white border border-gray-200 shadow-xl'
+        }`}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`text-2xl font-semibold flex items-center gap-3 ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              <span className="text-2xl">📢</span>
+              Community Alerts
+            </h2>
+            <button
+              onClick={() => setShowAlertForm(!showAlertForm)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 ${
+                isDarkMode 
+                  ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+              }`}
+            >
+              {showAlertForm ? 'Cancel' : '+ Post Alert'}
+            </button>
+          </div>
+
+          {/* Alert Form */}
+          {showAlertForm && (
+            <div className={`mb-6 p-4 rounded-xl animate-fade-in-up ${
+              isDarkMode 
+                ? 'bg-black/30 border border-white/10' 
+                : 'bg-gray-50 border border-gray-200'
+            }`}>
+              <textarea
+                value={newAlert}
+                onChange={(e) => setNewAlert(e.target.value)}
+                placeholder="Share information about the situation in your area..."
+                className={`w-full p-4 rounded-lg border resize-none focus:outline-none focus:ring-2 transition-all ${
+                  isDarkMode 
+                    ? 'bg-black/50 border-white/10 text-white placeholder-gray-500 focus:ring-blue-500/50' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-blue-500'
+                }`}
+                rows="3"
+              />
+              <button
+                onClick={handlePostAlert}
+                disabled={!newAlert.trim()}
+                className="mt-3 px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+              >
+                Post Alert
+              </button>
+            </div>
+          )}
+
+          {/* Alerts List */}
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {communityAlerts.length === 0 ? (
+              <div className={`text-center py-8 ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                <p className="text-lg mb-2">No community alerts yet</p>
+                <p className="text-sm">Be the first to share information about your area</p>
+              </div>
+            ) : (
+              communityAlerts.map((alert) => (
+                <div 
+                  key={alert.id}
+                  className={`p-4 rounded-xl transition-all duration-300 hover:scale-[1.01] ${
+                    isDarkMode 
+                      ? 'bg-black/30 border border-white/5 hover:bg-black/50 hover:border-white/10' 
+                      : 'bg-gray-50 border border-gray-200 hover:border-gray-300 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                      isDarkMode ? 'bg-blue-500/20' : 'bg-blue-100'
+                    }`}>
+                      <span className="text-lg">👤</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className={`leading-relaxed mb-2 ${
+                        isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                      }`}>
+                        {alert.message}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs">
+                        <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                          📍 {alert.city}
+                        </span>
+                        <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                          🕒 {alert.timestamp}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Emergency Contacts */}
         <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-500 hover:scale-[1.01] ${
           isDarkMode 
@@ -517,36 +768,27 @@ const ResQdrant = () => {
             <Phone className="text-red-600" size={28} />
             Emergency Hotlines
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button
-              onClick={() => setShowPhoneDialog(true)}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-red-500/30 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
-            >
-              <span className="text-xl">🚨</span>
-              <span>Emergency: 108</span>
-            </button>
-            <button
-              onClick={() => setShowPhoneDialog(true)}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
-            >
-              <span className="text-xl">👮</span>
-              <span>Police: 100</span>
-            </button>
-            <button
-              onClick={() => setShowPhoneDialog(true)}
-              className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
-            >
-              <span className="text-xl">🚒</span>
-              <span>Fire: 101</span>
-            </button>
-            <button
-              onClick={handleAlert}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
-            >
-              <span className="text-xl">📱</span>
-              <span>Alert Contacts</span>
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {emergencyHotlines.map((hotline, idx) => (
+              <button
+                key={idx}
+                onClick={() => setShowPhoneDialog(true)}
+                className={`bg-gradient-to-r ${getHotlineColor(hotline.color)} text-white font-semibold py-4 px-4 rounded-xl transition-all duration-300 shadow-lg flex flex-col items-center justify-center gap-2 transform hover:scale-105 active:scale-95`}
+              >
+                <span className="text-2xl">{hotline.icon}</span>
+                <span className="text-sm font-bold">{hotline.name}</span>
+                <span className="text-lg font-bold">{hotline.number}</span>
+                <span className="text-xs opacity-80">{hotline.description}</span>
+              </button>
+            ))}
           </div>
+          <button
+            onClick={handleAlert}
+            className="mt-4 w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-98"
+          >
+            <span className="text-xl">📱</span>
+            <span>Alert Emergency Contacts</span>
+          </button>
         </div>
 
         {/* Alert Sent Notification */}

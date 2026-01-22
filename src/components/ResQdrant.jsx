@@ -30,7 +30,7 @@ const ResQdrant = () => {
     gas: { icon: '💨', color: '#F59E0B' },
   };
 
-  // Safety tips for each emergency type (Prevention & Preparedness)
+  // Safety tips for each emergency type (Safety & Risk Prevention)
   const safetyTips = {
     fire: [
       "Install smoke detectors on every floor and test them monthly",
@@ -376,8 +376,10 @@ const ResQdrant = () => {
           </button>
         </div>
 
+        {/* Main Content Container with Consistent Spacing */}
+        <div className="space-y-8">
         {/* Emergency Input Section */}
-        <div className={`rounded-2xl p-6 sm:p-8 mb-6 transition-all duration-500 hover:scale-[1.01] ${
+        <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-500 hover:scale-[1.01] ${
           isDarkMode 
             ? 'bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50' 
             : 'bg-white border border-gray-200 shadow-xl hover:shadow-2xl'
@@ -451,7 +453,7 @@ const ResQdrant = () => {
 
         {/* Loading State */}
         {loading && (
-          <div className={`mb-6 rounded-2xl p-6 sm:p-8 border transition-all duration-500 animate-fade-in-up ${
+          <div className={`rounded-2xl p-6 sm:p-8 border transition-all duration-500 animate-fade-in-up ${
             isDarkMode 
               ? 'bg-white/5 backdrop-blur-2xl border-white/10 shadow-2xl shadow-black/50' 
               : 'bg-white border-gray-200 shadow-xl'
@@ -467,7 +469,7 @@ const ResQdrant = () => {
 
         {/* Error State */}
         {error && (
-          <div className={`mb-6 rounded-2xl p-6 sm:p-8 border-l-4 border-red-500 transition-all duration-500 animate-fade-in-up ${
+          <div className={`rounded-2xl p-6 sm:p-8 border-l-4 border-red-500 transition-all duration-500 animate-fade-in-up ${
             isDarkMode 
               ? 'bg-red-950/50 backdrop-blur-xl border border-red-900/50' 
               : 'bg-red-50 border border-red-200'
@@ -488,7 +490,7 @@ const ResQdrant = () => {
 
         {/* AI Emergency Classification */}
         {detectedEmergency && (
-          <div className={`rounded-2xl p-6 sm:p-8 mb-6 border-l-4 transition-all duration-700 animate-fade-in-up hover:scale-[1.01] ${
+          <div className={`rounded-2xl p-6 sm:p-8 border-l-4 transition-all duration-700 animate-fade-in-up hover:scale-[1.01] ${
             isDarkMode 
               ? 'bg-white/5 backdrop-blur-2xl border-white/10 border-l-red-500 shadow-2xl shadow-red-500/10' 
               : 'bg-white border-gray-200 shadow-xl hover:shadow-2xl border-l-red-600'
@@ -565,7 +567,7 @@ const ResQdrant = () => {
 
         {/* Nearby Resources */}
         {detectedEmergency && detectedEmergency.nearbyResources && detectedEmergency.nearbyResources.length > 0 && (
-          <div className={`rounded-2xl p-6 sm:p-8 mb-6 transition-all duration-700 animate-fade-in-up delay-200 hover:scale-[1.01] ${
+          <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-700 animate-fade-in-up delay-200 hover:scale-[1.01] ${
             isDarkMode 
               ? 'bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50' 
               : 'bg-white border border-gray-200 shadow-xl hover:shadow-2xl'
@@ -615,7 +617,7 @@ const ResQdrant = () => {
           </div>
         )}
 
-        {/* Prevention & Preparedness Tips Section */}
+        {/* Safety & Risk Prevention Tips Section */}
         {detectedEmergency && safetyTips[detectedEmergency.type] && (
           <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-500 animate-fade-in-up ${
             isDarkMode 
@@ -626,7 +628,7 @@ const ResQdrant = () => {
               isDarkMode ? 'text-white' : 'text-gray-900'
             }`}>
               <span className="text-2xl">🛡️</span>
-              Prevention & Preparedness - {detectedEmergency.type.charAt(0).toUpperCase() + detectedEmergency.type.slice(1)}
+              Safety & Risk Prevention - {detectedEmergency.type.charAt(0).toUpperCase() + detectedEmergency.type.slice(1)}
             </h2>
             <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Long-term safety measures to prevent and prepare for future emergencies
@@ -830,6 +832,7 @@ const ResQdrant = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

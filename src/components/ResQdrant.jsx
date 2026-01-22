@@ -179,7 +179,8 @@ const ResQdrant = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/classify', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/classify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

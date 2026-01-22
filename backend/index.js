@@ -5,7 +5,26 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const aiClassifier = require('./aiClassifier');
+
+// ========================
+// FILE UPLOAD CONFIGURATION
+// ========================
+const storage = multer.memoryStorage(); // Store files in memory as Buffer
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept images only
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'), false);
+    }
+    cb(null, true);
+  }
+});
 
 // ========================
 // IN-MEMORY DATA STORAGE
@@ -225,28 +244,57 @@ app.post('/api/report', async (req, res) => {
  * AI-Enhanced Emergency Classification
  * POST /api/classify
  * 
- * ResQdrant Sentinel: Understands emergencies through natural language.
+ * ResQdrant Sentinel: Understands emergencies through natural language and images.
  * Provides severity assessment and immediate safety instructions.
+ * 
+ * Supports:
+ * - Text only
+ * - Image only
+ * - Text + Image combined
  */
-app.post('/api/classify', async (req, res) => {
+app.post('/api/classify', upload.single('image'), async (req, res) => {
   try {
     const { userDescription } = req.body;
+    const imageFile = req.file;
 
-    if (!userDescription || userDescription.trim().length === 0) {
+    // Validate: At least one input required
+    if ((!userDescription || userDescription.trim().length === 0) && !imageFile) {
       return res.status(400).json({
-        error: 'userDescription is required'
+        error: 'Either userDescription or image is required'
       });
     }
 
+    // Build classification input
+    let classificationInput = '';
+    
+    if (userDescription && userDescription.trim().length > 0) {
+      classificationInput = userDescription.trim();
+    }
+
+    // If image provided, add context
+    if (imageFile) {
+      const imageContext = `[Image uploaded: ${imageFile.originalname}, size: ${(imageFile.size / 1024).toFixed(2)}KB, type: ${imageFile.mimetype}]`;
+      
+      if (classificationInput) {
+        classificationInput += ` ${imageContext}`;
+      } else {
+        // Image-only emergency
+        classificationInput = `Emergency situation captured in uploaded image. ${imageContext} Please analyze based on visual emergency indicators.`;
+      }
+      
+      console.log(`📸 Image received: ${imageFile.originalname} (${(imageFile.size / 1024).toFixed(2)}KB)`);
+    }
+
     // Use AI to classify emergency with full intelligence
-    const aiResult = await aiClassifier.classifyEmergency(userDescription);
+    const aiResult = await aiClassifier.classifyEmergency(classificationInput);
 
     // Attach nearby resources based on emergency type
     const nearbyResources = getNearbyResources(aiResult.emergencyType || 'unknown');
 
     res.json({
       ...aiResult,
-      nearbyResources
+      nearbyResources,
+      imageProcessed: !!imageFile
     });
 
   } catch (error) {

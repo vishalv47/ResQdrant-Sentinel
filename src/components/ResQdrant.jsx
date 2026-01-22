@@ -280,8 +280,9 @@ const ResQdrant = () => {
   };
 
   const handleAnalyze = async () => {
-    if (!emergencyInput.trim()) {
-      setError('Please describe your emergency');
+    // Validate: At least one input required
+    if (!emergencyInput.trim() && !uploadedImage) {
+      setError('Please describe your emergency or upload an image');
       return;
     }
 
@@ -290,14 +291,23 @@ const ResQdrant = () => {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      
+      // Use FormData for multipart upload
+      const formData = new FormData();
+      
+      if (emergencyInput.trim()) {
+        formData.append('userDescription', emergencyInput.trim());
+      }
+      
+      if (uploadedImage && uploadedImage.file) {
+        formData.append('image', uploadedImage.file);
+        console.log('📸 Sending image:', uploadedImage.file.name);
+      }
+
       const response = await fetch(`${apiUrl}/classify`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userDescription: emergencyInput,
-        }),
+        body: formData,
+        // Don't set Content-Type header - browser will set it with boundary
       });
 
       if (!response.ok) {
@@ -313,6 +323,7 @@ const ResQdrant = () => {
           explanation: data.explanation,
           firstAidSteps: data.firstAidSteps || [],
           nearbyResources: data.nearbyResources || [],
+          imageProcessed: data.imageProcessed || false,
         });
       } else {
         setError('Unable to classify emergency. Please try again.');
@@ -517,6 +528,14 @@ const ResQdrant = () => {
               >
                 Severity: {detectedEmergency.severity}
               </div>
+              {detectedEmergency.imageProcessed && (
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-md ml-3 ${
+                  isDarkMode ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-green-100 text-green-700 border border-green-300'
+                }`}>
+                  <span>📸</span>
+                  Image Analyzed
+                </div>
+              )}
             </div>
 
             {/* AI Explanation */}

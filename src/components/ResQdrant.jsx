@@ -30,83 +30,81 @@ const ResQdrant = () => {
     gas: { icon: '💨', color: '#F59E0B' },
   };
 
-  // Safety tips for each emergency type
+  // Safety tips for each emergency type (Prevention & Preparedness)
   const safetyTips = {
     fire: [
-      "Stay low to the ground to avoid smoke inhalation",
-      "Feel doors before opening - if hot, use alternate route",
-      "Never use elevators during a fire",
-      "Stop, drop, and roll if clothes catch fire",
-      "Call 101 immediately after ensuring personal safety"
+      "Install smoke detectors on every floor and test them monthly",
+      "Keep fire extinguishers accessible and learn how to use them",
+      "Plan and practice escape routes with family members",
+      "Store flammable materials away from heat sources",
+      "Never leave cooking or candles unattended"
     ],
     flood: [
-      "Move to higher ground immediately",
-      "Avoid walking or driving through flood water",
-      "Stay away from power lines and electrical wires",
-      "Don't drink flood water - it may be contaminated",
-      "Listen to local emergency broadcasts for updates"
+      "Know your area's flood risk and evacuation routes in advance",
+      "Prepare emergency kit with water, food, and important documents",
+      "Install check valves in plumbing to prevent backflow",
+      "Keep gutters and drains clear of debris",
+      "Consider flood insurance - regular home insurance doesn't cover floods"
     ],
     earthquake: [
-      "Drop, Cover, and Hold On during shaking",
-      "Stay away from windows, mirrors, and heavy objects",
-      "If outdoors, move to open space away from buildings",
-      "Don't use elevators - take stairs if evacuation needed",
-      "Check for gas leaks after shaking stops"
+      "Secure heavy furniture and appliances to walls",
+      "Identify safe spots in each room (under sturdy tables, away from windows)",
+      "Keep emergency supplies and flashlights in accessible locations",
+      "Learn how to turn off gas, water, and electricity",
+      "Practice earthquake drills with family regularly"
     ],
     medical: [
-      "Call 108 immediately for medical emergencies",
-      "Don't move injured person unless in immediate danger",
-      "Apply pressure to stop severe bleeding",
-      "For choking: perform Heimlich maneuver",
-      "Stay with the person until help arrives"
+      "Keep first aid kit fully stocked and easily accessible",
+      "Learn basic CPR and first aid skills through training courses",
+      "Maintain updated list of emergency contacts and medical info",
+      "Know locations of nearest hospitals and emergency rooms",
+      "Keep prescribed medications properly stored and monitored"
     ],
     bleeding: [
-      "Apply direct pressure with clean cloth",
-      "Elevate the injured area above heart level",
-      "Don't remove embedded objects",
-      "Use tourniquet only as last resort",
-      "Call 108 if bleeding doesn't stop in 10 minutes"
+      "Keep clean bandages, gauze, and antiseptic in first aid kit",
+      "Learn proper wound care and pressure point techniques",
+      "Know your blood type and update emergency medical information",
+      "Store gloves for protection when helping others",
+      "Take first aid course to learn bleeding control methods"
     ],
     electric: [
-      "Don't touch the person if still in contact with electricity",
-      "Turn off power source if safe to do so",
-      "Call 100 and report electrical emergency",
-      "Use dry wooden object to separate person from source",
-      "Check for breathing and perform CPR if needed"
+      "Schedule regular electrical system inspections by professionals",
+      "Replace damaged or frayed electrical cords immediately",
+      "Install GFCI outlets in bathrooms and kitchens",
+      "Never overload power outlets or extension cords",
+      "Keep electrical devices away from water sources"
     ],
     storm: [
-      "Stay indoors away from windows",
-      "Unplug electrical devices",
-      "Avoid using landline phones",
-      "Stay away from tall trees and metal objects",
-      "If outdoors, seek shelter in sturdy building"
+      "Monitor weather forecasts regularly during storm season",
+      "Trim trees and remove dead branches near your home",
+      "Secure outdoor furniture and objects that could become projectiles",
+      "Stock emergency supplies: water, batteries, flashlights, radio",
+      "Know the safest room in your home (interior, no windows)"
     ],
     landslide: [
-      "Evacuate immediately if rumbling sounds heard",
-      "Move perpendicular to the landslide path",
-      "Stay alert for flooding - often follows landslides",
-      "Don't return home until authorities declare safe",
-      "Watch for fallen power lines and damaged roads"
+      "Plant ground cover on slopes to stabilize soil",
+      "Ensure proper drainage systems around your property",
+      "Watch for signs: cracks in walls, tilting trees, stuck doors",
+      "Build retaining walls on steep slopes if possible",
+      "Avoid construction on steep slopes, near cliffs, or drainage paths"
     ],
     gas: [
-      "Don't use any electrical switches or flames",
-      "Open all windows and doors immediately",
-      "Evacuate the building quickly",
-      "Call gas emergency hotline from outside",
-      "Don't re-enter until cleared by authorities"
+      "Install gas leak detectors in home and check batteries regularly",
+      "Schedule annual gas line inspections by certified technicians",
+      "Know location of gas shut-off valve and how to turn it off",
+      "Never ignore the smell of gas - evacuate immediately",
+      "Ensure proper ventilation in rooms with gas appliances"
     ]
   };
 
   // Extended emergency hotlines
   const emergencyHotlines = [
-    { name: 'Emergency Services', number: '108', icon: '🚨', color: 'red', description: 'Ambulance & Medical' },
+    { name: 'Medical Emergency', number: '108', icon: '🚨', color: 'red', description: 'Ambulance & Medical' },
     { name: 'Police', number: '100', icon: '👮', color: 'blue', description: 'Law Enforcement' },
     { name: 'Fire Brigade', number: '101', icon: '🚒', color: 'orange', description: 'Fire & Rescue' },
-    { name: 'Disaster Management', number: '1078', icon: '🏢', color: 'purple', description: 'NDMA Helpline' },
     { name: 'Women Helpline', number: '1091', icon: '👩', color: 'pink', description: '24/7 Support' },
     { name: 'Child Helpline', number: '1098', icon: '👶', color: 'cyan', description: 'Child Protection' },
-    { name: 'Senior Citizens', number: '1091', icon: '👴', color: 'indigo', description: 'Elder Support' },
-    { name: 'Earthquake Alert', number: '1092', icon: '🌍', color: 'gray', description: 'Seismic Info' },
+    { name: 'Emergency Services', number: '112', icon: '🌍', color: 'gray', description: 'All-in-One Emergency Response' },
   ];
 
   const getSeverityColor = (severity) => {
@@ -617,19 +615,22 @@ const ResQdrant = () => {
           </div>
         )}
 
-        {/* Safety Tips Section */}
+        {/* Prevention & Preparedness Tips Section */}
         {detectedEmergency && safetyTips[detectedEmergency.type] && (
           <div className={`rounded-2xl p-6 sm:p-8 transition-all duration-500 animate-fade-in-up ${
             isDarkMode 
               ? 'bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50' 
               : 'bg-white border border-gray-200 shadow-xl'
           }`}>
-            <h2 className={`text-2xl font-semibold mb-6 flex items-center gap-3 ${
+            <h2 className={`text-2xl font-semibold mb-3 flex items-center gap-3 ${
               isDarkMode ? 'text-white' : 'text-gray-900'
             }`}>
-              <span className="text-2xl">💡</span>
-              Safety Tips - {detectedEmergency.type.charAt(0).toUpperCase() + detectedEmergency.type.slice(1)}
+              <span className="text-2xl">🛡️</span>
+              Prevention & Preparedness - {detectedEmergency.type.charAt(0).toUpperCase() + detectedEmergency.type.slice(1)}
             </h2>
+            <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Long-term safety measures to prevent and prepare for future emergencies
+            </p>
             <div className="space-y-3">
               {safetyTips[detectedEmergency.type].map((tip, idx) => (
                 <div 
@@ -637,11 +638,11 @@ const ResQdrant = () => {
                   className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-300 hover:translate-x-1 ${
                     isDarkMode 
                       ? 'bg-black/30 border border-white/5 hover:bg-black/50 hover:border-white/10' 
-                      : 'bg-green-50 border border-green-200 hover:border-green-300 hover:shadow-md'
+                      : 'bg-blue-50 border border-blue-200 hover:border-blue-300 hover:shadow-md'
                   }`}
                 >
                   <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    isDarkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-500 text-white'
+                    isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-500 text-white'
                   }`}>
                     {idx + 1}
                   </div>
